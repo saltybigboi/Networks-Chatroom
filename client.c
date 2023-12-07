@@ -18,6 +18,7 @@
 #define SERV_PORT 25565
 #define LISTENQ 64
 
+int first=0;
 char username[50];
 
 typedef struct sockaddr SA;
@@ -42,9 +43,11 @@ int main(int argc, char **argv)
     }
 
     //Takes in username
+    /*
     printf("Enter your username: ");
     fgets(username, sizeof(username), stdin);
-    username[strcspn(username, "\n")] = 0 ;   // Remove trailing newline character
+username[strcspn(username, "\n")] = 0 ;   // Remove trailing newline character
+*/
 
     // Initialize server address structure
     bzero(&servaddr, sizeof(servaddr));
@@ -60,7 +63,6 @@ int main(int argc, char **argv)
         printf("connect error\n");
 
     //Send username to server
-    write(sockfd, username, strlen(username));
 
     // Call the function to handle client-server communication
     str_cli(stdin, sockfd);
@@ -118,12 +120,20 @@ void str_cli(FILE *fp, int sockfd)
         }
         else{
             char message[MAXLINE];
-            sprintf(message, "%s: %s", username, sendline);
+            char temp[MAXLINE];
+            if(first>1)
+                    sprintf(message, "%s: %s", username, sendline);
+            else
+            {
+                    sscanf(sendline, "%s %s", temp, username);
+                    sprintf(message, "%s",sendline);
+                    first=2;
+            }
+
             n = strlen(message); // Update n to reflect the number of bytes read
             message[n] = '\0'; // Null-terminate send data
             write(sockfd, message, n); // Write send data to socket
         }
-
             //write(sockfd, sendline, n); // Write send data to socket
     }
 }
